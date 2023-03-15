@@ -70,9 +70,10 @@ func HandleConnection(connection net.Conn) {
 	}
 
 	reqByte := buffer[:bufLen]
-	fmt.Printf("Received input from %s: %s\n", connection.RemoteAddr().String(), reqByte)
 
 	req := RequestDecoder(reqByte)
+
+	fmt.Printf("Received %s request from %s: %s\n", req.Method, connection.RemoteAddr().String(), req.Uri)
 
 	resp := HandleRequest(req)
 
