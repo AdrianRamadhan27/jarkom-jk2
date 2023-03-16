@@ -167,15 +167,48 @@ func HandleRequest(req HttpRequest) HttpResponse {
 func RequestDecoder(bytestream []byte) HttpRequest {
 	//Put the decoding program for HTTP Request Packet here
 	var req HttpRequest
+	var stringByte byte
+	var loopControl int = 0
+	var skippedIndex int = -1
+	var str string = ""
 
+	for i := 0; i < len(bytestream); i++ {
+		stringByte = bytestream[i]
+		if i == skippedIndex {
+			continue
+		}
+
+		if stringByte == 32 && loopControl <= 1 {
+			switch loopControl {
+			case 0:
+				req.Method = str
+			case 1:
+				req.Uri = str
+			}
+			str = ""
+		} else if stringByte == 13 && bytestream[i+1] == 10 && loopControl > 1 {
+			switch loopControl {
+			case 2:
+				req.Version = str
+			case 3:
+				req.Host = str
+			case 4:
+				req.Accept = str
+			}
+			str = ""
+			skippedIndex = i + 1
+		} else {
+			str = str + string(stringByte)
+		}
+		req.AcceptLanguange = str
+
+	}
 	return req
-
 }
 
 func ResponseEncoder(res HttpResponse) []byte {
 	//Put the encoding program for HTTP Response Struct here
 	var result string
-
+	result = res.Version + " " + res.StatusCode + "\r\n" + res.ContentType + "\r\n" + res.ContentLanguage + "\r\n" + res.Data
 	return []byte(result)
-
 }
