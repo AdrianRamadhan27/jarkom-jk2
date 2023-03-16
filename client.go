@@ -56,6 +56,7 @@ func ResponseDecoder(bytestream []byte) HttpResponse {
 		if stringByte == 32 && loopControl == 0 {
 			res.Version = str
 			str = ""
+			loopControl++
 		} else if stringByte == 13 && bytestream[i+1] == 10 && loopControl > 0 {
 			switch loopControl {
 			case 1:
@@ -67,6 +68,7 @@ func ResponseDecoder(bytestream []byte) HttpResponse {
 			}
 			str = ""
 			skippedIndex = i + 1
+			loopControl++
 		} else {
 			str = str + string(stringByte)
 		}
@@ -79,7 +81,7 @@ func ResponseDecoder(bytestream []byte) HttpResponse {
 
 func RequestEncoder(req HttpRequest) []byte {
 	var result string
-	result = req.Method + " " + req.Uri + " " + req.Version + "\r\n" + req.Host + "\r\n" + req.Accept + "\r\n" + req.AcceptLanguange
+	result = req.Method + " " + req.Uri + " " + req.Version + "\r\n" + req.Host + "\r\n" + req.Accept + "\r\n" + req.AcceptLanguange + "\r\n"
 	return []byte(result)
 
 }

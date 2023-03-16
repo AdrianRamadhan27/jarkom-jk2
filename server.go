@@ -186,6 +186,7 @@ func RequestDecoder(bytestream []byte) HttpRequest {
 				req.Uri = str
 			}
 			str = ""
+			loopControl++
 		} else if stringByte == 13 && bytestream[i+1] == 10 && loopControl > 1 {
 			switch loopControl {
 			case 2:
@@ -194,13 +195,15 @@ func RequestDecoder(bytestream []byte) HttpRequest {
 				req.Host = str
 			case 4:
 				req.Accept = str
+			case 5:
+				req.AcceptLanguange = str
 			}
 			str = ""
 			skippedIndex = i + 1
+			loopControl++
 		} else {
 			str = str + string(stringByte)
 		}
-		req.AcceptLanguange = str
 
 	}
 	return req
