@@ -212,6 +212,6 @@ func RequestDecoder(bytestream []byte) HttpRequest {
 func ResponseEncoder(res HttpResponse) []byte {
 	//Put the encoding program for HTTP Response Struct here
 	var result string
-	result = res.Version + " " + res.StatusCode + "\r\n" + res.ContentType + "\r\n" + res.ContentLanguage + "\r\n" + res.Data
+	result = res.Version + " " + res.StatusCode + "\r\n" + res.ContentType + "\r\n" + res.ContentLanguage + "\r\n\r\n" + res.Data
 	return []byte(result)
 }

@@ -151,7 +151,7 @@ func ResponseDecoder(bytestream []byte) HttpResponse {
 
 func RequestEncoder(req HttpRequest) []byte {
 	var result string
-	result = req.Method + " " + req.Uri + " " + req.Version + "\r\n" + req.Host + "\r\n" + req.Accept + "\r\n" + req.AcceptLanguange + "\r\n"
+	result = req.Method + " " + req.Uri + " " + req.Version + "\r\n" + req.Host + "\r\n" + req.Accept + "\r\n" + req.AcceptLanguange + "\r\n\r\n"
 	return []byte(result)
 
 }
