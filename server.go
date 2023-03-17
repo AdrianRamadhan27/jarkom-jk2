@@ -67,7 +67,7 @@ func main() {
 func HandleConnection(connection net.Conn) {
 	//This progrom handles the incoming request from client
 	buffer := make([]byte, BUFFER_SIZE)
-	bufLen, err := conn.Read(buffer)
+	bufLen, err := connection.Read(buffer)
 	if err != nil {
 		fmt.Println("Error message:", err.Error())
 		return
@@ -83,13 +83,13 @@ func HandleConnection(connection net.Conn) {
 
 	respByte := ResponseEncoder(resp)
 
-	_, err = conn.Write(respByte)
+	_, err = connection.Write(respByte)
 	if err != nil {
 		fmt.Println("error message:", err.Error())
 		return
 	}
 
-	defer conn.Close()
+	defer connection.Close()
 }
 
 func HandleRequest(req HttpRequest) HttpResponse {
@@ -99,33 +99,33 @@ func HandleRequest(req HttpRequest) HttpResponse {
 	var contentType string
 	var contentLanguage string
 	if req.Uri == "/" || req.Uri == "/?name="+GROUP_NAME {
-		status = 200
+		status = "200"
 		data = "<html><body><h1>Halo, kami dari Klepon</h1></body></html>"
 		contentType = "text/html"
 		contentLanguage = req.AcceptLanguange
 	} else if req.Uri == "/data" {
-		status = 200
+		status = "200"
 		var students [3]Student
 		students[0] = Student{Nama: "Raden Mohamad Adrian Ramadhan Hendar Wibawa", Npm: "2106750540"}
 		students[1] = Student{Nama: "Hizkia Sebastian Ginting", Npm: "2106750881"}
 		students[2] = Student{Nama: "Kade Satrya Noto Sadharma", Npm: "2106752376"}
 		switch req.Accept {
 		case "application/json":
-			jsonData, err := json.Marshal(user)
+			jsonData, err := json.Marshal(students)
 			if err != nil {
 				data = "Error message: " + err.Error()
 			}
 			data = string(jsonData)
 			contentType = "application/json"
 		case "application/xml":
-			xmlData, err := xml.Marshal(user)
+			xmlData, err := xml.Marshal(students)
 			if err != nil {
 				data = "Error message: " + err.Error()
 			}
 			data = string(xmlData)
 			contentType = "application/xml"
 		default:
-			jsonData, err := json.Marshal(user)
+			jsonData, err := json.Marshal(students)
 			if err != nil {
 				data = "Error message: " + err.Error()
 			}
@@ -134,7 +134,7 @@ func HandleRequest(req HttpRequest) HttpResponse {
 		}
 		contentLanguage = req.AcceptLanguange
 	} else if req.Uri == "/greeting" {
-		status = 200
+		status = "200"
 		switch req.AcceptLanguange {
 		case "id-ID":
 			data = "<html><body><h1>Halo, kami dari Klepon</h1></body></html>"
@@ -148,7 +148,7 @@ func HandleRequest(req HttpRequest) HttpResponse {
 		}
 		contentType = "text/html"
 	} else {
-		status = 404
+		status = "404"
 		data = ""
 		contentType = "text/html"
 		contentLanguage = req.AcceptLanguange
@@ -167,15 +167,51 @@ func HandleRequest(req HttpRequest) HttpResponse {
 func RequestDecoder(bytestream []byte) HttpRequest {
 	//Put the decoding program for HTTP Request Packet here
 	var req HttpRequest
+	var stringByte byte
+	var loopControl int = 0
+	var skippedIndex int = -1
+	var str string = ""
 
+	for i := 0; i < len(bytestream); i++ {
+		stringByte = bytestream[i]
+		if i == skippedIndex {
+			continue
+		}
+
+		if stringByte == 32 && loopControl <= 1 {
+			switch loopControl {
+			case 0:
+				req.Method = str
+			case 1:
+				req.Uri = str
+			}
+			str = ""
+			loopControl++
+		} else if stringByte == 13 && bytestream[i+1] == 10 && loopControl > 1 {
+			switch loopControl {
+			case 2:
+				req.Version = str
+			case 3:
+				req.Host = str
+			case 4:
+				req.Accept = str
+			case 5:
+				req.AcceptLanguange = str
+			}
+			str = ""
+			skippedIndex = i + 1
+			loopControl++
+		} else {
+			str = str + string(stringByte)
+		}
+
+	}
 	return req
-
 }
 
 func ResponseEncoder(res HttpResponse) []byte {
 	//Put the encoding program for HTTP Response Struct here
 	var result string
-
+	result = res.Version + " " + res.StatusCode + "\r\n" + res.ContentType + "\r\n" + res.ContentLanguage + "\r\n" + res.Data
 	return []byte(result)
-
 }
