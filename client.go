@@ -82,7 +82,7 @@ func main() {
 	_ = res
 	_ = student
 	fmt.Printf("Status code: %s\n", res.StatusCode)
-	fmt.Printf("Body: %s", res.Data)
+	fmt.Printf("Body: %s\n", res.Data)
 }
 
 func Fetch(req HttpRequest, connection net.Conn) (HttpResponse, []Student, HttpRequest) {

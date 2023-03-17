@@ -10,7 +10,7 @@ import (
 
 const (
 	SERVER_HOST = ""
-	SERVER_PORT = "9540"
+	SERVER_PORT = "2376"
 	SERVER_TYPE = "tcp"
 	BUFFER_SIZE = 1024
 	GROUP_NAME  = "JK2"
