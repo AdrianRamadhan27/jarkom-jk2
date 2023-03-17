@@ -65,7 +65,7 @@ func main() {
 		Accept:          data,
 		AcceptLanguange: lang,
 	}
-	tcpAddr, err := net.ResolveTCPAddr(SERVER_TYPE, req.Host+":"+"9540")
+	tcpAddr, err := net.ResolveTCPAddr(SERVER_TYPE, req.Host+":"+a[2])
 	if err != nil {
 		fmt.Println("Error message:", err.Error())
 		os.Exit(1)
